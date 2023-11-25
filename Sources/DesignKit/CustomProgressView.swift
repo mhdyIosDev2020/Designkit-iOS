@@ -46,7 +46,7 @@ public struct CustomProgressView: View {
                         .fill(Color(.systemGray6))
                         .frame(height: 5)
                     RoundedRectangle(cornerRadius: 3)
-                        .fill(.red.gradient)
+                        .fill(.red)
                         .frame(width: drawingWidth ? UIScreen.main.bounds.width - 32 : 0, alignment: .leading)
                     
 //                        .animation(.easeInOut(duration: timeInterval).repeatForever(autoreverses: false), value: drawingWidth)
