@@ -123,6 +123,7 @@ public enum TextEntryViewType: Int {
 
 public struct TextEntryView: View {
     @Binding public var text: String
+    @Binding public var placeHolder: String
     @Binding public var validatationState: TextEntryViewValidation
     @Binding public var validatationMessage: String
     @Binding public var returnType: UIReturnKeyType
@@ -146,6 +147,7 @@ public struct TextEntryView: View {
     
     public init(
             text: Binding<String>,
+            placeHolder: Binding<String>,
             validatationState: Binding<TextEntryViewValidation>,
             validatationMessage: Binding<String>,
             returnType: Binding<UIReturnKeyType>,
@@ -184,6 +186,7 @@ public struct TextEntryView: View {
             self.picker = picker
             self.modifyIconClicked = modifyIconClicked
             self.textContentType = textContentType
+            self._placeHolder = placeHolder
         }
     
     
@@ -357,16 +360,24 @@ public struct TextEntryView: View {
                     
                         VStack(alignment: .leading, spacing: 0) {
                             Text(type.placeholder()).opacity(0.5)
-                            
-                            InputField(text: $text.onChange(textChanged), isEnabled: .constant(true), isFocused: $hasFocus, isSecure: $isSecure,  isAllowedToEdit : isAllowedToEdit  , keyboardType: type.keyboardType(),textContentType: self.textContentType, returnKeyType: returnType, done: {
-                                done()
-                            })
-                            .frame(height: 24)
-                            .padding(.vertical, 5)
-                            .onChange(of: hasFocus) { newValue in
-                                if !newValue {
-                                    lostFocus()
+//                            TextField("Email", text: $userName).tint(.red).padding().background(Capsule().strokeBorder(lineWidth: 1).foregroundColor(.red)).padding()
+                            HStack{
+                                InputField(text: $text.onChange(textChanged), placeHolder: $placeHolder, isEnabled: .constant(true), isFocused: $hasFocus, isSecure: $isSecure,  isAllowedToEdit : isAllowedToEdit  , keyboardType: type.keyboardType(),textContentType: self.textContentType, returnKeyType: returnType, done: {
+                                    done()
+                                })
+                                .padding(8)
+                                .background(Capsule().strokeBorder(lineWidth: 1).foregroundColor(.gray.opacity(0.5)))//.padding()
+                                .frame(height: 40)
+                                .padding(.vertical, 5)
+                                
+                                .onChange(of: hasFocus) { newValue in
+                                    if !newValue {
+                                        lostFocus()
+                                    }
                                 }
+                                StatusView(validatationState: validatationState, type: self.type, isSecure: self.isSecure)
+                                
+
                             }
                             /*.onChange(of: text) { newValue in
                                 if newValue != "" {
@@ -381,74 +392,92 @@ public struct TextEntryView: View {
                 
                 Spacer()
                 
-                if type == .password || type == .createPassword {
-                    
-                    HStack(spacing : 10) {
-                        
-                        if forgot != nil {
-                            Button("Forgot?") {
-                                forgot?()
-                            }
-                            .buttonStyle(LinkButtonStyle())
-                        }
-                        
-                        Button {
-                            self.isSecure.toggle()
-                        } label: {
-                            Image(systemName: self.isSecure ?
-                                  "eye.slash" : "eye")
-                            .resizable()
-                            .frame(width: 25, height: 15)
-                            .foregroundColor(Color.gray)
-                        }
-                        
-                    }
-                    
-                }
-                
-                if validatationState == .valid {
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(validatationState.color())
-                }
-                else if validatationState == .invalid {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundColor(validatationState.color())
-                }
-                else if validatationState == .loading {
-                    ProgressView()
-                }
-                else if validatationState == .modifiable {
-                    
-                    Button {
-                        modifyIconClicked?()
-                    } label: {
-                        Image(systemName: "pencil")
-                            .foregroundColor(validatationState.color())
-                    
-                    }
-                    
-                    
-                }
-                else {
-    //                Image(systemName: "xmark.circle.fill")
-    //                    .opacity(0)
-                }
+      
                 
         
             }
-            Divider()
+//            Divider()
         }
+        .padding()
+        .background(Rectangle().fill(.white))
+        .cornerRadius(10)
 //        .background(backgroundLabel)
 //        .border(width: 1 / UIScreen.main.scale, edges: [.bottom], color: validatationState.color())
         .onAppear{
             self.isSecure = type.isSecure()
         }
     }
+    
+    
+    
 }
+struct StatusView : View {
+    
+    @State public var validatationState: TextEntryViewValidation
+    public var type : TextEntryViewType
+    @State public var isSecure:Bool
+    public var forgot: (() -> Void)?
+    public var modifyIconClicked: (() -> Void)?
+   
 
+    var body: some View {
+        if type == .password || type == .createPassword {
+            
+            HStack(spacing : 10) {
+                
+                if forgot != nil {
+                    Button("Forgot?") {
+                        forgot?()
+                    }
+                    .buttonStyle(LinkButtonStyle())
+                }
+                
+                Button {
+                    self.isSecure.toggle()
+                } label: {
+                    Image(systemName: self.isSecure ?
+                          "eye.slash" : "eye")
+                    .resizable()
+                    .frame(width: 25, height: 15)
+                    .foregroundColor(Color.gray)
+                }
+                
+            }.frame(height: 40)
+            
+        }
+        
+        if validatationState == .valid {
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundColor(validatationState.color())
+        }
+        else if validatationState == .invalid {
+            Image(systemName: "xmark.circle.fill")
+                .foregroundColor(validatationState.color())
+        }
+        else if validatationState == .loading {
+            ProgressView()
+        }
+        else if validatationState == .modifiable {
+            
+            Button {
+                modifyIconClicked?()
+            } label: {
+                Image(systemName: "pencil")
+                    .foregroundColor(validatationState.color())
+            
+            }
+            
+            
+        }
+        else {
+//                Image(systemName: "xmark.circle.fill")
+//                    .opacity(0)
+        }
+    }
+}
 struct TextEntryView_Previews: PreviewProvider {
     static var previews: some View {
-        TextEntryView(text: .constant(""), validatationState: .constant(.none), validatationMessage: .constant("Password requires at least one character.  Please enter that below..."), returnType: .constant(.done), hasFocus: .constant(false),countryCode: .constant("+98"), countryName: .constant(nil), genderID: .constant("") , birthday: .constant(""),hearAboutUs: .constant(""), isAllowedToEdit: .constant(true), type: .password, lostFocus: {
+        TextEntryView(text: .constant(""), placeHolder: .constant("place holder"), validatationState: .constant(.none), validatationMessage: .constant("Password requires at least one character.  Please enter that below..."), returnType: .constant(.done), hasFocus: .constant(false),countryCode: .constant("+98"), countryName: .constant(nil), genderID: .constant("") , birthday: .constant(""),hearAboutUs: .constant(""), isAllowedToEdit: .constant(true), type: .password, lostFocus: {
 
         }, done: {
 

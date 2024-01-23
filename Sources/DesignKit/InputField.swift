@@ -9,6 +9,7 @@ import SwiftUI
 
 public struct InputField: UIViewRepresentable {
     @Binding public var text: String
+    @Binding public var placeHolder: String
     @Binding public var isEnabled: Bool
     @Binding public var isFocused: Bool
     @Binding public var isSecure:Bool
@@ -42,7 +43,9 @@ public struct InputField: UIViewRepresentable {
         if uiView.text != text {
             uiView.text = text
         }
-                
+           
+        uiView.placeholder = placeHolder
+        
         if uiView.isSecureTextEntry != isSecure {
             uiView.isSecureTextEntry = isSecure
         }
@@ -88,7 +91,7 @@ public struct InputField: UIViewRepresentable {
 
 struct InputField_Previews: PreviewProvider {
     static var previews: some View {
-        InputField(text: .constant("Hello"), isEnabled: .constant(true), isFocused: .constant(false), isSecure: .constant(false) , done: {
+        InputField(text: .constant(""), placeHolder: .constant("Some Text ..."), isEnabled: .constant(true), isFocused: .constant(false), isSecure: .constant(false) , done: {
             
         })
     }
