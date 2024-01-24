@@ -366,7 +366,8 @@ public struct TextEntryView: View {
                                     done()
                                 })
                                 .padding(8)
-                                .background(Capsule().strokeBorder(lineWidth: 1).foregroundColor(.gray.opacity(0.5)))//.padding()
+                                .background(Capsule()
+                                    .strokeBorder(lineWidth: 1).foregroundColor(.gray.opacity(0.5)))//.padding()
                                 .frame(height: 40)
                                 .padding(.vertical, 5)
                                 
@@ -378,7 +379,7 @@ public struct TextEntryView: View {
                                 StatusView(validatationState: validatationState, type: self.type, isSecure: self.isSecure)
                                 
 
-                            }
+                            }.background(Color(.clear))
                             /*.onChange(of: text) { newValue in
                                 if newValue != "" {
                                     validatationState = .none
@@ -398,8 +399,9 @@ public struct TextEntryView: View {
             }
 //            Divider()
         }
+        .background(Color(.clear))
         .padding()
-        .background(Rectangle().fill(.white))
+        .background(Rectangle().fill(.clear))
         .cornerRadius(10)
 //        .background(backgroundLabel)
 //        .border(width: 1 / UIScreen.main.scale, edges: [.bottom], color: validatationState.color())
