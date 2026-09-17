@@ -1,10 +1,3 @@
-//
-//  View.swift
-//  Lyf Support (iOS)
-//
-//  Created by Jason Blood on 7/10/21.
-//
-
 import SwiftUI
 import UIKit
 

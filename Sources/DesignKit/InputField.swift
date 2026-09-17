@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import UIKit
 
 public struct InputField: UIViewRepresentable {
     @Binding public var text: String
@@ -17,8 +18,20 @@ public struct InputField: UIViewRepresentable {
     public var keyboardType = UIKeyboardType.default
     public var textContentType = UITextContentType.emailAddress
     public var returnKeyType = UIReturnKeyType.default
+    /// Extra delegate callbacks layered on top of InputField's own syncing.
+    /// `Coordinator` stays the UITextField's actual `delegate` — that's what
+    /// keeps `text`/`isFocused`/`done()` working — and forwards every call
+    /// here afterward. For the four methods with a return value
+    /// (`shouldChangeCharactersIn`, `shouldClear`, `shouldBeginEditing`,
+    /// `shouldEndEditing`), this delegate's answer wins when it implements
+    /// one; InputField has no opinion of its own on those, so it defaults to
+    /// `true` when this is nil or doesn't implement it. `shouldReturn` is the
+    /// exception: `done()` always fires first since that's InputField's own
+    /// contract, and this delegate's return value (default `false`) only
+    /// decides whether the keyboard also gets UIKit's default return handling.
+    public weak var delegate: UITextFieldDelegate?
     public let done: () -> Void
-    
+
     public func makeUIView(context: UIViewRepresentableContext<InputField>) -> UITextField {
         let tf = UITextField(frame: .zero)
         tf.isUserInteractionEnabled = true
@@ -64,6 +77,7 @@ public struct InputField: UIViewRepresentable {
                     self.parent?.text = textField.text ?? ""
                 }
             }
+            parent?.delegate?.textFieldDidChangeSelection?(textField)
         }
 
         public func textFieldDidBeginEditing(_ textField: UITextField) {
@@ -72,6 +86,7 @@ public struct InputField: UIViewRepresentable {
                     self.parent?.isFocused = true
                 }
             }
+            parent?.delegate?.textFieldDidBeginEditing?(textField)
         }
 
         public func textFieldDidEndEditing(_ textField: UITextField) {
@@ -80,11 +95,34 @@ public struct InputField: UIViewRepresentable {
                     self.parent?.isFocused = false
                 }
             }
+            parent?.delegate?.textFieldDidEndEditing?(textField)
         }
 
         public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
             self.parent?.done()
-            return false
+            return parent?.delegate?.textFieldShouldReturn?(textField) ?? false
+        }
+
+        public func textField(
+            _ textField: UITextField,
+            shouldChangeCharactersIn range: NSRange,
+            replacementString string: String
+        ) -> Bool {
+            parent?.delegate?.textField?(
+                textField, shouldChangeCharactersIn: range, replacementString: string
+            ) ?? true
+        }
+
+        public func textFieldShouldClear(_ textField: UITextField) -> Bool {
+            parent?.delegate?.textFieldShouldClear?(textField) ?? true
+        }
+
+        public func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
+            parent?.delegate?.textFieldShouldBeginEditing?(textField) ?? true
+        }
+
+        public func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
+            parent?.delegate?.textFieldShouldEndEditing?(textField) ?? true
         }
     }
 }
