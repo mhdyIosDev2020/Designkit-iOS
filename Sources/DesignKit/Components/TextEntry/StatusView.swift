@@ -69,3 +69,11 @@ struct StatusView : View {
         }
     }
 }
+#Preview {
+    StatusView(validatationState: .valid, type: .displayName, isSecure: .constant(false)) {
+        
+    } modifyIconClicked: {
+        
+    }
+
+}

@@ -13,6 +13,11 @@ let package = Package(
         .library(
             name: "DesignKit",
             targets: ["DesignKit"]),
+        // A browsable guide to every DesignKit component. Add it to your
+        // app only if you want to show the catalog (e.g. in a debug menu).
+        .library(
+            name: "DesignKitCatalog",
+            targets: ["DesignKitCatalog"]),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -20,9 +25,12 @@ let package = Package(
         .target(
             name: "DesignKit",
             resources: [
-                .process("ColorAsset.xcassets"),
-                .process("IconAssets.xcassets"),
+                .process("Resources/ColorAsset.xcassets"),
+                .process("Resources/IconAssets.xcassets"),
             ]),
+        .target(
+            name: "DesignKitCatalog",
+            dependencies: ["DesignKit"]),
         .testTarget(
             name: "DesignKitTests",
             dependencies: ["DesignKit"]),
