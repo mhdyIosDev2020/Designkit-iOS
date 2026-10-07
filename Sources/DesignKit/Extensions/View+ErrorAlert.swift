@@ -1,0 +1,37 @@
+//
+//  View+ErrorAlert.swift
+//  DesignKit
+//
+
+import SwiftUI
+
+public struct LocalizedAlertError: LocalizedError {
+    let underlyingError: LocalizedError
+    public var errorDescription: String? {
+        underlyingError.errorDescription
+    }
+    public var recoverySuggestion: String? {
+        underlyingError.recoverySuggestion
+    }
+
+    init?(error: Error?) {
+        guard let localizedError = error as? LocalizedError else { return nil }
+        underlyingError = localizedError
+    }
+}
+public enum CodeClanError: Error {
+    case other(String)
+}
+extension View {
+    
+   public func errorAlert(error: Binding<Error?>, buttonTitle: String = "OK") -> some View {
+        let localizedAlertError = LocalizedAlertError(error: error.wrappedValue)
+        return alert(isPresented: .constant(localizedAlertError != nil), error: localizedAlertError) { _ in
+            Button(buttonTitle) {
+                error.wrappedValue = nil
+            }
+        } message: { error in
+            Text(error.recoverySuggestion ?? "")
+        }
+    }
+}
